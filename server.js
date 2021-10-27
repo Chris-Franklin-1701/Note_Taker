@@ -13,52 +13,64 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static('public'));
 
-app.get('/', (req, res) =>
-    es.sendFile(path.join(__dirname, '/public/index.html'))
+app.get('/notes', (req,res) => 
+    res.sendFile(path.join(__dirname, '/public/notes.html'))
+);
+
+app.get('*', (req, res) =>
+    res.sendFile(path.join(__dirname, '/public/index.html'))
 );
 
 // GET request for reviews
-app.get('/api/reviews', (req, res) => {
+app.get('/api/notes', (req, res) => {
   // Send a message to the client
-    res.status(200).json(`${req.method} request received to get reviews`);
-
-  // Log our request to the terminal
-    console.info(`${req.method} request received to get reviews`);
-});
-
-// POST request to add a review
-app.post('/api/reviews', (req, res) => {
-  // Log that a POST request was received
-    console.info(`${req.method} request received to add a review`);
-
-  // Destructuring assignment for the items in req.body
-    const { product, review, username } = req.body;
-
-  // If all the required properties are present
-    if (product && review && username) {
-    // Variable for the object we will save
-    const newReview = {
-        product,
-        review,
-        username,
-        review_id: uuid(),
-    };
-
-    // Obtain existing reviews
-    fs.readFile('./db/reviews.json', 'utf8', (err, data) => {
+    //res.status(200).json(`${req.method} request received to get reviews`);
+    fs.readFile('./db/db.json', 'utf8', (err, data) => {
         if (err) {
         console.error(err);
         } else {
         // Convert string into JSON object
-        const parsedReviews = JSON.parse(data);
+        const parsedNotes = JSON.parse(data);
+
+        parsedNotes.push(newNote);
+        }
+  // Log our request to the terminal
+    console.info(`${req.method} request received to get reviews`);
+    });
+});
+
+// POST request to add a review
+app.post('/api/notes', (req, res) => {
+  // Log that a POST request was received
+    console.info(`${req.method} request received to add a review`);
+
+  // Destructuring assignment for the items in req.body
+    const { title, text } = req.body;
+
+  // If all the required properties are present
+    if (title && text) {
+    // Variable for the object we will save
+    const newNote = {
+        title,
+        text,
+        id: uuid(),
+    };
+
+    // Obtain existing reviews
+    fs.readFile('./db/db.json', 'utf8', (err, data) => {
+        if (err) {
+        console.error(err);
+        } else {
+        // Convert string into JSON object
+        const parsedNotes = JSON.parse(data);
 
         // Add a new review
-        parsedReviews.push(newReview);
+        parsedNotes.push(newNote);
 
         // Write updated reviews back to the file
         fs.writeFile(
-            './db/reviews.json',
-            JSON.stringify(parsedReviews, null, 4),
+            './db/db.json',
+            JSON.stringify(parsedNotes, null, 4),
             (writeErr) =>
             writeErr
                 ? console.error(writeErr)
@@ -69,7 +81,7 @@ app.post('/api/reviews', (req, res) => {
 
     const response = {
         status: 'success',
-        body: newReview,
+        body: newNote,
     };
 
     console.log(response);
