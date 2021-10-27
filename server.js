@@ -17,9 +17,7 @@ app.get('/notes', (req,res) =>
     res.sendFile(path.join(__dirname, '/public/notes.html'))
 );
 
-app.get('*', (req, res) =>
-    res.sendFile(path.join(__dirname, '/public/index.html'))
-);
+
 
 // GET request for reviews
 app.get('/api/notes', (req, res) => {
@@ -32,8 +30,8 @@ app.get('/api/notes', (req, res) => {
         // Convert string into JSON object
         const parsedNotes = JSON.parse(data);
 
-        parsedNotes.push(newNote);
-        }
+        res.status(201).json(parsedNotes);
+    }
   // Log our request to the terminal
     console.info(`${req.method} request received to get reviews`);
     });
@@ -90,6 +88,12 @@ app.post('/api/notes', (req, res) => {
     res.status(500).json('Error in posting review');
     }
 });
+
+
+app.get('*', (req, res) =>
+    res.sendFile(path.join(__dirname, '/public/index.html'))
+);
+
 
 app.listen(PORT, () =>
     console.log(`App listening at http://localhost:${PORT} 🚀`)
